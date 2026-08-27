@@ -26,6 +26,29 @@ DEFAULT_QUESTIONS = [
 ]
 
 
+def build_weakness_profile(history):
+    evaluated = [a.evaluation for a in history if a.evaluation]
+    if len(evaluated) < 5:
+        return None
+    dimensions = {
+        "Clarity": sum(e.clarity for e in evaluated) / len(evaluated),
+        "Structure": sum(e.structure for e in evaluated) / len(evaluated),
+        "Directness": sum(e.directness for e in evaluated) / len(evaluated),
+        "Reasoning": sum(e.reasoning for e in evaluated) / len(evaluated),
+    }
+    counts, rules = {}, {}
+    for e in evaluated:
+        counts[e.main_weakness] = counts.get(e.main_weakness, 0) + 1
+        rules[e.main_weakness] = e.training_rule
+    patterns = sorted(counts, key=counts.get, reverse=True)[:3]
+    return {
+        "averages": {k: round(v, 1) for k, v in dimensions.items()},
+        "weakest_dimension": min(dimensions, key=dimensions.get),
+        "patterns": [{"name": p, "count": counts[p], "advice": rules[p]} for p in patterns],
+        "next_drill": evaluated[0].follow_up_exercise,
+    }
+
+
 @app.on_event("startup")
 def startup() -> None:
     Base.metadata.create_all(bind=engine)
@@ -53,6 +76,7 @@ def home(request: Request, user_id: int | None = None, db: Session = Depends(get
     return templates.TemplateResponse("index.html", {
         "request": request, "user": user, "question": question, "history": history,
         "weaknesses_unlocked": len(history) >= 5,
+        "weakness_profile": build_weakness_profile(history),
     })
 
 
