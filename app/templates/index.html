@@ -4,6 +4,7 @@
   <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
   <title>AI Communication Coach</title>
   <link rel="stylesheet" href="/static/style.css">
+  <link rel="stylesheet" href="/static/profile.css">
 </head>
 <body>
 <main>
@@ -28,6 +29,14 @@
       <div class="feedback"><div><small>FOCUS AREA</small><strong>{{ item.evaluation.main_weakness }}</strong><p>{{ item.evaluation.training_rule }}</p></div><div><small>NEXT EXERCISE</small><strong>{{ item.evaluation.follow_up_exercise }}</strong></div></div>{% endif %}
     </article>{% else %}<p class="empty">Your first evaluation will appear here.</p>{% endfor %}
   </section>
-  <section class="card weaknesses"><h2>My Weaknesses</h2>{% if weaknesses_unlocked %}<p>Your recurring patterns are now ready for review.</p>{% else %}<p>Complete {{ 5-history|length }} more practices to unlock your personal pattern analysis.</p>{% endif %}</section>
+  <section class="card weaknesses"><h2>My Weaknesses</h2>
+    {% if weakness_profile %}
+      <p>Your current priority is <strong>{{ weakness_profile.weakest_dimension }}</strong>, based on your latest {{ history|length }} answers.</p>
+      <div class="profile-scores">{% for name, score in weakness_profile.averages.items() %}<span>{{ name }} <b>{{ score }}</b></span>{% endfor %}</div>
+      <h3>Recurring patterns</h3>
+      {% for pattern in weakness_profile.patterns %}<div class="pattern"><b>{{ pattern.count }}×</b><div><strong>{{ pattern.name }}</strong><p>How to improve: {{ pattern.advice }}</p></div></div>{% endfor %}
+      <div class="next-plan"><small>YOUR NEXT PRACTICE</small><p>{{ weakness_profile.next_drill }}</p></div>
+    {% else %}<p>Complete {{ 5-history|length }} more practices to unlock your personal pattern analysis.</p>{% endif %}
+  </section>
   {% endif %}
 </main><script src="/static/app.js"></script></body></html>
