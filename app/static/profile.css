@@ -1,0 +1,8 @@
+.profile-scores{display:flex;gap:12px;flex-wrap:wrap;margin:20px 0}
+.profile-scores span{background:#ffffff12;padding:10px 13px;border-radius:9px}
+.profile-scores b{color:var(--lime);margin-left:5px}
+.pattern{display:flex;gap:14px;border-top:1px solid #ffffff24;padding:15px 0}
+.pattern>b{color:var(--lime);font-size:20px}
+.pattern p{margin:5px 0;color:#d8dfdc}
+.next-plan{background:var(--lime);color:var(--ink);padding:16px;border-radius:12px;margin-top:18px}
+.next-plan p{margin-bottom:0}
