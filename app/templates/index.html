@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>AI Communication Coach</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<main>
+  <header><span class="eyebrow">PERSONAL PRACTICE LAB</span><h1>Say it clearly.<br><em>Make it land.</em></h1></header>
+  {% if not user %}
+  <section class="card login"><h2>Start your practice</h2><form method="post" action="/users"><input name="name" placeholder="Your name" required><button>Enter the studio →</button></form></section>
+  {% else %}
+  <div class="topline"><span>Practicing as <strong>{{ user.name }}</strong></span><a href="/">Switch user</a></div>
+  <section class="card practice">
+    <div class="step">TODAY'S PROMPT</div><h2>{{ question.text }}</h2>
+    <form id="answer-form" method="post" action="/answers">
+      <input type="hidden" name="user_id" value="{{ user.id }}"><input type="hidden" name="question_id" value="{{ question.id }}">
+      <input type="hidden" id="thinking" name="thinking_time_seconds" value="0"><input type="hidden" id="writing" name="writing_time_seconds" value="0">
+      <textarea id="answer" name="text" rows="8" placeholder="Take a moment. Then write your answer here…" required></textarea>
+      <div class="meta"><span><b id="words">0</b> words</span><span>Thinking <b id="think-clock">0:00</b></span><span>Writing <b id="write-clock">0:00</b></span></div>
+      <button>Get my feedback →</button>
+    </form>
+  </section>
+  <section><div class="section-title"><h2>Recent practice</h2><span>{{ history|length }} sessions</span></div>
+    {% for item in history %}<article class="card result"><p class="question">{{ item.question.text }}</p><p>{{ item.text }}</p>
+      {% if item.evaluation %}<div class="scores"><span>Clarity <b>{{ item.evaluation.clarity }}</b></span><span>Structure <b>{{ item.evaluation.structure }}</b></span><span>Directness <b>{{ item.evaluation.directness }}</b></span><span>Reasoning <b>{{ item.evaluation.reasoning }}</b></span></div>
+      <div class="feedback"><div><small>FOCUS AREA</small><strong>{{ item.evaluation.main_weakness }}</strong><p>{{ item.evaluation.training_rule }}</p></div><div><small>NEXT EXERCISE</small><strong>{{ item.evaluation.follow_up_exercise }}</strong></div></div>{% endif %}
+    </article>{% else %}<p class="empty">Your first evaluation will appear here.</p>{% endfor %}
+  </section>
+  <section class="card weaknesses"><h2>My Weaknesses</h2>{% if weaknesses_unlocked %}<p>Your recurring patterns are now ready for review.</p>{% else %}<p>Complete {{ 5-history|length }} more practices to unlock your personal pattern analysis.</p>{% endif %}</section>
+  {% endif %}
+</main><script src="/static/app.js"></script></body></html>
