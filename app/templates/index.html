@@ -14,7 +14,7 @@
   {% else %}
   <div class="topline"><span>Practicing as <strong>{{ user.name }}</strong></span><a href="/">Switch user</a></div>
   <section class="card practice">
-    <div class="step">TODAY'S PROMPT</div><h2>{{ question.text }}</h2>
+    <div class="step">{% if question_is_personalized %}PERSONALIZED NEXT PROMPT{% else %}TODAY'S PROMPT{% endif %}</div><h2>{{ question.text }}</h2>
     <form id="answer-form" method="post" action="/answers">
       <input type="hidden" name="user_id" value="{{ user.id }}"><input type="hidden" name="question_id" value="{{ question.id }}">
       <input type="hidden" id="thinking" name="thinking_time_seconds" value="0"><input type="hidden" id="writing" name="writing_time_seconds" value="0">
