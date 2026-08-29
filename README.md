@@ -14,6 +14,7 @@ A working FastAPI application for timed English communication practice. Every an
 - Deterministic local evaluator when no key is configured or the API is unavailable
 - User history API at `/api/users/{user_id}/history`
 - Personal weakness area unlocked after five answers
+- Dynamic next prompt selected from the weakest score across the latest five evaluations
 
 ## Run with Docker
 
@@ -48,4 +49,4 @@ pytest -q
 
 ## Next milestone
 
-Aggregate the last five evaluations into a weakness profile, then select the next question dynamically from that profile. Multi-agent orchestration should wait until the single evaluator is stable and measurable.
+Measure whether the personalized prompt improves the targeted score over the next five answers. Multi-agent orchestration should wait until the single evaluator is stable and measurable.
