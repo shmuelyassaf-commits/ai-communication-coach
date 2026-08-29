@@ -25,9 +25,16 @@ DEFAULT_QUESTIONS = [
     "What professional skill are you currently developing, and why?",
 ]
 
+QUESTION_BY_WEAKNESS = {
+    "Clarity": DEFAULT_QUESTIONS[3],
+    "Structure": DEFAULT_QUESTIONS[0],
+    "Directness": DEFAULT_QUESTIONS[1],
+    "Reasoning": DEFAULT_QUESTIONS[2],
+}
+
 
 def build_weakness_profile(history):
-    evaluated = [a.evaluation for a in history if a.evaluation]
+    evaluated = [a.evaluation for a in history if a.evaluation][:5]
     if len(evaluated) < 5:
         return None
     dimensions = {
@@ -49,6 +56,18 @@ def build_weakness_profile(history):
     }
 
 
+def select_next_question(questions, history, weakness_profile):
+    """Choose a stable warm-up question, then personalize after five evaluations."""
+    if not questions:
+        return None
+    if weakness_profile:
+        target = QUESTION_BY_WEAKNESS[weakness_profile["weakest_dimension"]]
+        personalized = next((question for question in questions if question.text == target), None)
+        if personalized:
+            return personalized
+    return questions[len(history) % len(questions)]
+
+
 @app.on_event("startup")
 def startup() -> None:
     Base.metadata.create_all(bind=engine)
@@ -66,17 +85,20 @@ def health():
 @app.get("/", response_class=HTMLResponse)
 def home(request: Request, user_id: int | None = None, db: Session = Depends(get_db)):
     user = db.get(User, user_id) if user_id else None
-    question = db.scalar(select(Question).order_by(Question.id))
+    questions = db.scalars(select(Question).order_by(Question.id)).all()
     history = []
     if user:
         history = db.scalars(
             select(Answer).options(joinedload(Answer.question), joinedload(Answer.evaluation))
             .where(Answer.user_id == user.id).order_by(Answer.created_at.desc()).limit(10)
         ).all()
+    weakness_profile = build_weakness_profile(history)
+    question = select_next_question(questions, history, weakness_profile)
     return templates.TemplateResponse("index.html", {
         "request": request, "user": user, "question": question, "history": history,
         "weaknesses_unlocked": len(history) >= 5,
-        "weakness_profile": build_weakness_profile(history),
+        "weakness_profile": weakness_profile,
+        "question_is_personalized": bool(weakness_profile),
     })
 
 
